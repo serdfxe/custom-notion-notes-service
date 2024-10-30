@@ -1,10 +1,10 @@
 from uuid import UUID
-from api.block.dto import BlockBase
+from pydantic import BaseModel
 
 
-class WorkspaceBase(BlockBase):
-    type: str = "workspace"
+class WorkspaceBase(BaseModel):
+    owner_id: UUID
     content: list[str]
     
 class WorkspaceResponseDTO(WorkspaceBase):
-    owner: UUID
+    id: UUID
