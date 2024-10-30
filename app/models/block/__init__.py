@@ -1,6 +1,5 @@
-from uuid import UUID
-
 from sqlalchemy import Column, String, JSON
+from sqlalchemy.dialects.postgresql import UUID
 
 from core.db import Base
 
@@ -11,4 +10,4 @@ class Block(Base):
     type = Column(String, nullable=False)
     properties = Column(JSON, nullable=False)
     content = Column(String, nullable=False)
-    parent = Column(UUID, nullable=False)
+    parent = Column(UUID(as_uuid=True), nullable=False)

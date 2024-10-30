@@ -1,13 +1,18 @@
 from sqlalchemy import Column, ForeignKey
-from sqlalchemy.orm import DeclarativeBase, relationship
+from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import UUID
 
-from uuid import UUID, uuid4
+from uuid import uuid4
+
+from core.db import Base
+
+from app.models.block import Block
 
 
-class Workspace(DeclarativeBase):
+class Workspace(Base):
     __tablename__ = 'workspaces'
 
-    id = Column(UUID, ForeignKey("blocks.id"), primary_key=True, default=uuid4)
-    owner_id = Column(UUID, primary_key=True)
-    block = relationship("Block")
+    # id = Column(UUID(as_uuid=True), ForeignKey("blocks.id"), primary_key=True, default=uuid4)
+    owner_id = Column(UUID(as_uuid=True), primary_key=True)
+    block = relationship(Block, uselist=False, foreign_keys=[id])
     
