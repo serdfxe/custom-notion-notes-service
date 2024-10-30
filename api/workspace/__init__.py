@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from .dto import WorkspaceResponseDTO
 
 
-workspace_router = APIRouter(prefix="/workspace", tags=["block"])
+workspace_router = APIRouter(prefix="/workspace", tags=["workspace"])
 
 @workspace_router.get("/", response_model=WorkspaceResponseDTO, responses={
     200: {"description": "Block data retrieved successfully."},
