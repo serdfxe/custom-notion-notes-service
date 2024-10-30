@@ -1,10 +1,10 @@
 from fastapi import APIRouter
 from pydantic import UUID1
 
-from dto import BlockResponseDTO, BlockCreateRequestDTO, BlockPutRequestDTO
+from .dto import BlockResponseDTO, BlockCreateRequestDTO, BlockPutRequestDTO
 
 
-block_router = APIRouter(prefix="block", tags=["block"])
+block_router = APIRouter(prefix="/block", tags=["block"])
 
 @block_router.get('/{id}', response_model=BlockResponseDTO, responses={
     200: {"description": "Block data retrieved successfully."},

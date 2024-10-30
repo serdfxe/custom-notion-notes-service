@@ -1,12 +1,11 @@
 from fastapi import APIRouter
-from pydantic import UUID1
 
-from dto import WorkspaceResponseDTO
+from .dto import WorkspaceResponseDTO
 
 
-workspace_router = APIRouter(prefix="workspace", tags=["block"])
+workspace_router = APIRouter(prefix="/workspace", tags=["block"])
 
-@workspace_router.get('/', response_model=WorkspaceResponseDTO, responses={
+@workspace_router.get("/", response_model=WorkspaceResponseDTO, responses={
     200: {"description": "Block data retrieved successfully."},
     404: {"description": "Block not found."},
 })
