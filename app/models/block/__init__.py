@@ -5,7 +5,7 @@ from core.db import Base
 
 
 class Block(Base):
-    __tablename__ = 'blocks'
+    __tablename__ = "blocks"
 
     type = Column(String, nullable=False)
     properties = Column(JSON, nullable=False)

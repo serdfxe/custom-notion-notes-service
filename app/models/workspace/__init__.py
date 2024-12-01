@@ -10,9 +10,7 @@ from app.models.block import Block
 
 
 class Workspace(Base):
-    __tablename__ = 'workspaces'
+    __tablename__ = "workspaces"
 
-    # id = Column(UUID(as_uuid=True), ForeignKey("blocks.id"), primary_key=True, default=uuid4)
     owner_id = Column(UUID(as_uuid=True), primary_key=True)
     block = relationship(Block, uselist=False, foreign_keys=[id])
-    
