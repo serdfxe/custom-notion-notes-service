@@ -73,7 +73,9 @@ async def update_block_route(
 @block_router.patch(
     "/{id}",
     responses={
-        status.HTTP_200_OK: {"description": "Block data partially updated successfully."},
+        status.HTTP_200_OK: {
+            "description": "Block data partially updated successfully."
+        },
         status.HTTP_404_NOT_FOUND: {"description": "Block not found."},
     },
 )
