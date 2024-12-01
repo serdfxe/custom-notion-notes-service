@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Header, status
 from uuid import UUID
 
 from .dto import (
@@ -17,8 +17,8 @@ block_router = APIRouter(prefix="/block", tags=["block"])
     "/{id}",
     response_model=BlockResponseDTO,
     responses={
-        200: {"description": "Block data retrieved successfully."},
-        404: {"description": "Block not found."},
+        status.HTTP_200_OK: {"description": "Block data retrieved successfully."},
+        status.HTTP_404_NOT_FOUND: {"description": "Block not found."},
     },
 )
 async def get_block_route(id: UUID, x_user_id: Annotated[str, Header()]):
@@ -31,8 +31,7 @@ async def get_block_route(id: UUID, x_user_id: Annotated[str, Header()]):
     "/",
     response_model=BlockResponseDTO,
     responses={
-        200: {"description": "Block created successfully."},
-        404: {"description": "Parent block not found."},
+        status.HTTP_201_CREATED: {"description": "Block created successfully."},
     },
 )
 async def create_block_route(
@@ -46,8 +45,8 @@ async def create_block_route(
 @block_router.delete(
     "/{id}",
     responses={
-        200: {"description": "Block deleted successfully."},
-        404: {"description": "Block not found."},
+        status.HTTP_204_NO_CONTENT: {"description": "Block deleted successfully."},
+        status.HTTP_404_NOT_FOUND: {"description": "Block not found."},
     },
 )
 async def delete_block_route(id: UUID, x_user_id: Annotated[str, Header()]):
@@ -59,8 +58,8 @@ async def delete_block_route(id: UUID, x_user_id: Annotated[str, Header()]):
 @block_router.put(
     "/{id}",
     responses={
-        200: {"description": "Block data updated successfully."},
-        404: {"description": "Block not found."},
+        status.HTTP_200_OK: {"description": "Block data updated successfully."},
+        status.HTTP_404_NOT_FOUND: {"description": "Block not found."},
     },
 )
 async def update_block_route(
@@ -74,8 +73,8 @@ async def update_block_route(
 @block_router.patch(
     "/{id}",
     responses={
-        200: {"description": "Block data partially updated successfully."},
-        404: {"description": "Block not found."},
+        status.HTTP_200_OK: {"description": "Block data partially updated successfully."},
+        status.HTTP_404_NOT_FOUND: {"description": "Block not found."},
     },
 )
 async def update_block_route(
