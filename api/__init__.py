@@ -1,8 +1,10 @@
+import logging
+import httpx
 from api.block import block_router
 from api.workspace import workspace_router
 
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -31,9 +33,36 @@ def create_api() -> FastAPI:
     )
 
     init_routers(api=api)
-    init_cors(api=api)
 
     return api
 
 
 api = create_api()
+
+@api.middleware("http")
+async def verify_auth_middleware(request: Request, call_next):
+    header = request.headers.get('Authorization')
+
+    if header is None:
+        return Response(content="Token is missing", status_code=status.HTTP_401_UNAUTHORIZED)
+
+    async with httpx.AsyncClient() as client:
+        verify_response = await client.get("http://auth.custom-notion.ru/auth/verify", headers={
+            'Authorization': f'{header}'
+        })
+
+    if verify_response.status_code != status.HTTP_200_OK:
+        return Response(content="Invalid token", status_code=status.HTTP_401_UNAUTHORIZED)
+
+    user_id = verify_response.json().get("user_id")
+
+    if user_id:
+        request.headers.__dict__["_list"].append(("X-User-Id".encode(), user_id.encode()))
+        
+        response = await call_next(request)
+        
+        return response
+    else:
+        return Response(content="User ID not found", status_code=status.HTTP_403_FORBIDDEN)
+    
+init_cors(api=api)
