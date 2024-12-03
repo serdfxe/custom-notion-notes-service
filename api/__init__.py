@@ -39,30 +39,35 @@ def create_api() -> FastAPI:
 
 api = create_api()
 
-@api.middleware("http")
-async def verify_auth_middleware(request: Request, call_next):
-    header = request.headers.get('Authorization')
+# @api.middleware("http")
+# async def verify_auth_middleware(request: Request, call_next):
+#     header = request.headers.get('Authorization')
+    
+#     # logger = logging.getLogger(__name__)
+#     # logger.setLevel(logging.ERROR)  
+    
+#     # logger.error(header)
 
-    if header is None:
-        return Response(content="Token is missing", status_code=status.HTTP_401_UNAUTHORIZED)
+#     if header is None:
+#         return Response(content="Token is missing", status_code=status.HTTP_401_UNAUTHORIZED)
 
-    async with httpx.AsyncClient() as client:
-        verify_response = await client.get("http://auth.custom-notion.ru/auth/verify", headers={
-            'Authorization': f'{header}'
-        })
+#     async with httpx.AsyncClient() as client:
+#         verify_response = await client.get("http://localhost:8000/auth/verify", headers={
+#             'Authorization': f'{header}'
+#         })
 
-    if verify_response.status_code != status.HTTP_200_OK:
-        return Response(content="Invalid token", status_code=status.HTTP_401_UNAUTHORIZED)
+#     if verify_response.status_code != status.HTTP_200_OK:
+#         return Response(content="Invalid token", status_code=status.HTTP_401_UNAUTHORIZED)
 
-    user_id = verify_response.json().get("user_id")
+#     user_id = verify_response.json().get("user_id")
 
-    if user_id:
-        request.headers.__dict__["_list"].append(("X-User-Id".encode(), user_id.encode()))
+#     if user_id:
+#         request.headers.__dict__["_list"].append(("X-User-Id".encode(), user_id.encode()))
         
-        response = await call_next(request)
+#         response = await call_next(request)
         
-        return response
-    else:
-        return Response(content="User ID not found", status_code=status.HTTP_403_FORBIDDEN)
+#         return response
+#     else:
+#         return Response(content="User ID not found", status_code=status.HTTP_403_FORBIDDEN)
     
 init_cors(api=api)
