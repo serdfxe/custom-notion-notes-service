@@ -227,7 +227,7 @@ async def delete_block_route(id: UUID):
     Delete block. The operation deletes block that associated with provided id. 
     """
 
-@block_router.put("/{id}", responses={
+@block_router.put("/{id}", status_code=200, responses={
     200: {"description": "Block data updated successfully."},
     404: {"description": "Block not found."},
 })
@@ -235,5 +235,7 @@ async def update_block_route(id: UUID, request: BlockPutRequestDTO):
     """
     Update block. The operation updates block with provided data.
     """
-
-    block_db[str(id)] = BlockResponseDTO(id=id, **dict(request))
+    try:
+        block_db[str(id)] = BlockResponseDTO(id=id, **dict(request))
+    except Exception as e:
+        ...
