@@ -13,4 +13,9 @@ class Workspace(Base):
     __tablename__ = "workspaces"
 
     owner_id = Column(UUID(as_uuid=True), primary_key=True)
-    block = relationship(Block, uselist=False, foreign_keys=[id])
+
+    # Добавьте поле для связи с таблицей Block
+    block_id = Column(UUID(as_uuid=True), ForeignKey("blocks.id"), nullable=True)
+
+    # Обновите relationship, указав внешний ключ для связи
+    block = relationship(Block, uselist=False, foreign_keys=[block_id])

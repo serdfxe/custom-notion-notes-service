@@ -9,5 +9,6 @@ class Block(Base):
 
     type = Column(String, nullable=False)
     properties = Column(JSON, nullable=False)
-    content = Column(String, nullable=False)
+    content = Column(JSON, nullable=False)
     parent = Column(UUID(as_uuid=True), nullable=False)
+    user_id = Column(UUID(as_uuid=True), nullable=False)

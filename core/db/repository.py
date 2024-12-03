@@ -44,8 +44,8 @@ class DatabaseRepository(Generic[Model]):
             await self.session.commit()
 
     async def update(self, id: uuid.UUID, data: dict):
-        user = await self.session.get(self.model, self.model.id == id)
-        if user is not None:
+        obj = await self.get(self.model.id == id)
+        if obj is not None:
             for key, value in data.items():
-                setattr(user, key, value)
+                setattr(obj, key, value)
             await self.session.commit()
