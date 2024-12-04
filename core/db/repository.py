@@ -49,3 +49,5 @@ class DatabaseRepository(Generic[Model]):
             for key, value in data.items():
                 setattr(obj, key, value)
             await self.session.commit()
+
+        return obj

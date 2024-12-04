@@ -108,6 +108,7 @@ async def delete_block_route(
 
 @block_router.put(
     "/{id}",
+    response_model=BlockResponseDTO,
     responses={
         status.HTTP_200_OK: {"description": "Block data updated successfully."},
         status.HTTP_404_NOT_FOUND: {"description": "Block not found."},
@@ -140,16 +141,12 @@ async def update_block(
 
     data = {key: val for key, val in data.items() if val is not None}
 
-    await user_repo.update(id, data)
-
-    return {
-        "status": status.HTTP_200_OK,
-        "description": "Block data updated successfully.",
-    }
+    return await user_repo.update(id, data)
 
 
 @block_router.patch(
     "/{id}",
+    response_model=BlockResponseDTO,
     responses={
         status.HTTP_200_OK: {
             "description": "Block data partially updated successfully."
@@ -186,9 +183,4 @@ async def update_block_route(
         key: value for key, value in update_data.items() if value is not None
     }
 
-    await user_repo.update(id, update_data)
-
-    return {
-        "status": status.HTTP_200_OK,
-        "description": "Block data partially updated successfully.",
-    }
+    return await user_repo.update(id, update_data)
