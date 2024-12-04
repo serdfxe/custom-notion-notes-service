@@ -1,9 +1,8 @@
 from typing import Annotated
 from fastapi import APIRouter, Header, status, Depends, HTTPException, status
-from uuid import UUID, uuid4
+from uuid import UUID
 from core.fastapi.dependencies import get_repository
 from app.models.block import Block
-from app.models.workspace import Workspace
 from core.db.repository import DatabaseRepository
 
 from .dto import (

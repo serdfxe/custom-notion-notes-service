@@ -3,17 +3,12 @@ from core.fastapi.dependencies import get_repository
 from typing import Annotated
 from api.block.dto import BlockResponseDTO
 from core.db.repository import DatabaseRepository
-from app.models.workspace import Workspace
 from app.models.block import Block
 from uuid import UUID, uuid4
 
 
 workspace_router = APIRouter(prefix="/workspace", tags=["workspace"])
 
-WorkspaceRepository = Annotated[
-    DatabaseRepository[Workspace],
-    Depends(get_repository(Workspace)),
-]
 
 BlockRepository = Annotated[
     DatabaseRepository[Block],
