@@ -190,8 +190,6 @@ def test_update_block(created_block_user_id: list):
 
     assert response.status_code == 200
 
-    
-
     response = client.get(
         f"/block/{block_id}",
         headers=user_headers(user_id),
@@ -229,13 +227,13 @@ def test_update_block(created_block_user_id: list):
             "content": [str(uuid4())],
         },
         {
-            "parent": uuid4(),
+            "parent": str(uuid4()),
         },
         {
             "type": "type2",
             "properties": {"title": [[f"Updated Page title 2"]]},
             "content": [str(uuid4())],
-            "parent": uuid4(),
+            "parent": str(uuid4()),
         },
     ],
 )
@@ -248,6 +246,13 @@ def test_patch_block(new_data, created_block_user_id):
         f"/block/{block_id}",
         headers=user_headers(user_id),
         json=new_data,
+    )
+
+    assert response.status_code == 200
+
+    response = client.get(
+        f"/block/{block_id}",
+        headers=user_headers(user_id),
     )
 
     assert response.status_code == 200

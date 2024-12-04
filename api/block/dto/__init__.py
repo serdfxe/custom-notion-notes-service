@@ -19,10 +19,10 @@ class BlockPutRequestDTO(BlockBase): ...
 
 
 class BlockPatchRequestDTO(BaseModel):
-    type: str | None
-    properties: dict | None
-    content: list[str] | None
-    parent: UUID | None
+    type: str | None = None
+    properties: dict | None = None
+    content: list[str] | None = None
+    parent: UUID | None = None
 
     class Config:
         from_attributes = True
