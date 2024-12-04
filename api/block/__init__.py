@@ -12,7 +12,7 @@ from .dto import (
     BlockPutRequestDTO,
 )
 
-UserRepository = Annotated[
+BlockRepository = Annotated[
     DatabaseRepository[Block],
     Depends(get_repository(Block)),
 ]
@@ -29,13 +29,13 @@ block_router = APIRouter(prefix="/block", tags=["block"])
     },
 )
 async def get_block_route(
-    id: UUID, x_user_id: Annotated[UUID, Header()], user_repo: UserRepository
+    id: UUID, x_user_id: Annotated[UUID, Header()], block_repo: BlockRepository
 ):
     """
     Get block. The operation returns block data that associated with provided id.
     """
 
-    data = await user_repo.get(Block.id == id, Block.user_id == x_user_id)
+    data = await block_repo.get(Block.id == id, Block.user_id == x_user_id)
 
     if data is None:
         raise HTTPException(
@@ -57,7 +57,7 @@ async def get_block_route(
 async def create_block_route(
     request: BlockCreateRequestDTO,
     x_user_id: Annotated[UUID, Header()],
-    user_repo: UserRepository,
+    block_repo: BlockRepository,
 ):
     """
     Create block. The operation creates new block with provided data.
@@ -70,7 +70,7 @@ async def create_block_route(
         "parent": request.parent,
         "user_id": x_user_id,
     }
-    new_block = await user_repo.create(**new_block_data)
+    new_block = await block_repo.create(**new_block_data)
 
     return new_block
 
@@ -84,13 +84,13 @@ async def create_block_route(
     },
 )
 async def delete_block_route(
-    id: UUID, x_user_id: Annotated[UUID, Header()], user_repo: UserRepository
+    id: UUID, x_user_id: Annotated[UUID, Header()], block_repo: BlockRepository
 ):
     """
     Delete block. The operation deletes block that associated with provided id.
     """
 
-    data = await user_repo.get(Block.id == id, Block.user_id == x_user_id)
+    data = await block_repo.get(Block.id == id, Block.user_id == x_user_id)
 
     if data is None:
         raise HTTPException(
@@ -98,7 +98,22 @@ async def delete_block_route(
             {"error_message": "Block not found.", "error_code": 2},
         )
 
-    await user_repo.delete(Block.id == id, Block.user_id == x_user_id)
+    await block_repo.delete(Block.id == id, Block.user_id == x_user_id)
+
+    try:
+        parent = await block_repo.get(Block.id == data.parent, Block.user_id == x_user_id)
+
+        await block_repo.update(parent.id, {
+            "content": [
+                child for child in parent.content
+                if child["id"] != id
+            ]
+        })
+    except Exception:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            {"error_message": f"Error occurred while updating parent block.", "error_code": 3},
+        )
 
     return {
         "status": status.HTTP_204_NO_CONTENT,
@@ -118,13 +133,13 @@ async def update_block(
     id: UUID,
     request: BlockPutRequestDTO,
     x_user_id: Annotated[UUID, Header()],
-    user_repo: UserRepository,
+    block_repo: BlockRepository,
 ):
     """
     Update block. The operation updates block with provided data.
     """
 
-    data = await user_repo.get(Block.id == id, Block.user_id == x_user_id)
+    data = await block_repo.get(Block.id == id, Block.user_id == x_user_id)
 
     if data is None:
         raise HTTPException(
@@ -141,7 +156,7 @@ async def update_block(
 
     data = {key: val for key, val in data.items() if val is not None}
 
-    return await user_repo.update(id, data)
+    return await block_repo.update(id, data)
 
 
 @block_router.patch(
@@ -158,13 +173,13 @@ async def update_block_route(
     id: UUID,
     request: BlockPatchRequestDTO,
     x_user_id: Annotated[UUID, Header()],
-    user_repo: UserRepository,
+    block_repo: BlockRepository,
 ):
     """
     Partially update block. The operation partially updates block with provided data.
     """
 
-    block = await user_repo.get(Block.id == id, Block.user_id == x_user_id)
+    block = await block_repo.get(Block.id == id, Block.user_id == x_user_id)
 
     if block is None:
         raise HTTPException(
@@ -183,4 +198,4 @@ async def update_block_route(
         key: value for key, value in update_data.items() if value is not None
     }
 
-    return await user_repo.update(id, update_data)
+    return await block_repo.update(id, update_data)
