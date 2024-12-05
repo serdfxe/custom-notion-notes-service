@@ -19,9 +19,11 @@ class DatabaseRepository(Generic[Model]):
 
     async def create(self, **kwargs) -> Model:
         instance = self.model(**kwargs)
+        
         self.session.add(instance)
         await self.session.commit()
         await self.session.refresh(instance)
+
         return instance
 
     async def get(self, *args) -> Model | None:
