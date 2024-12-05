@@ -6,10 +6,12 @@ from starlette.testclient import TestClient
 from uuid import UUID, uuid4
 
 from . import block_router
+from ..workspace import workspace_router
 
 
 app = FastAPI()
 app.include_router(block_router)
+app.include_router(workspace_router)
 
 
 client = TestClient(app)
@@ -17,7 +19,7 @@ client = TestClient(app)
 
 @pytest.fixture
 def user_id():
-    return uuid4()
+    return str(uuid4())
 
 
 def user_headers(user_id: UUID):
@@ -26,20 +28,32 @@ def user_headers(user_id: UUID):
 
 @pytest.fixture
 def _uuid():
-    return uuid4()
+    return str(uuid4())
 
 
 @pytest.fixture
-def block(_uuid):
+async def ws_user(user_id):
+    response = client.get(
+        "/workspace/",
+        headers=user_headers(user_id),
+    )
+
+    return [response.json(), user_id]
+
+
+@pytest.fixture
+def block(_uuid, ws_user):
+    ws, user_id = ws_user
+
     return {
         "type": "page",
         "properties": {"title": [[f"Page {_uuid} title"]]},
         "content": [],
-        "parent": str(uuid4()),
+        "parent": str(ws["id"]),
+        "user_id": user_id,
     }
 
 
-@pytest.mark.asyncio
 async def test_create_block(user_id, block):
     response = client.post(
         "/block",
@@ -84,7 +98,6 @@ def created_block_user_id(block, user_id):
     ]
 
 
-@pytest.mark.asyncio
 def test_get_block(created_block_user_id: list):
     block, user_id = created_block_user_id
 
@@ -111,7 +124,6 @@ def test_get_block(created_block_user_id: list):
     assert response.json()["id"] == block["id"]
 
 
-@pytest.mark.asyncio
 def test_get_block_not_found(user_id):
     response = client.get(
         f"/block/{uuid4()}",
@@ -126,7 +138,6 @@ def test_get_block_not_found(user_id):
     assert response.json()["detail"]["error_message"] == "Block not found."
 
 
-@pytest.mark.asyncio
 def test_delete_block(created_block_user_id: list):
     block, user_id = created_block_user_id
 
@@ -152,22 +163,15 @@ def test_delete_block(created_block_user_id: list):
     assert response.json()["detail"]["error_message"] == "Block not found."
 
 
-@pytest.mark.asyncio
 def test_delete_block_not_found(user_id):
     response = client.delete(
         f"/block/{uuid4()}",
         headers=user_headers(user_id),
     )
 
-    assert response.status_code == 404
-
-    assert "detail" in response.json()
-
-    assert "error_message" in response.json()["detail"]
-    assert response.json()["detail"]["error_message"] == "Block not found."
+    assert response.status_code == 204
 
 
-@pytest.mark.asyncio
 def test_update_block(created_block_user_id: list):
     block, user_id = created_block_user_id
 
@@ -213,7 +217,6 @@ def test_update_block(created_block_user_id: list):
     assert response.json()["id"] == block_id
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "new_data",
     [

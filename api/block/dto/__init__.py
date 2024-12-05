@@ -5,7 +5,7 @@ from pydantic import BaseModel
 class BlockBase(BaseModel):
     type: str
     properties: dict
-    content: list[str]
+    content: list[UUID]
     parent: UUID
 
     class Config:
@@ -21,7 +21,7 @@ class BlockPutRequestDTO(BlockBase): ...
 class BlockPatchRequestDTO(BaseModel):
     type: str | None = None
     properties: dict | None = None
-    content: list[str] | None = None
+    content: list[UUID] | None = None
     parent: UUID | None = None
 
     class Config:

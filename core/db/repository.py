@@ -19,7 +19,7 @@ class DatabaseRepository(Generic[Model]):
 
     async def create(self, **kwargs) -> Model:
         instance = self.model(**kwargs)
-        
+
         self.session.add(instance)
         await self.session.commit()
         await self.session.refresh(instance)
@@ -52,4 +52,11 @@ class DatabaseRepository(Generic[Model]):
                 setattr(obj, key, value)
             await self.session.commit()
 
+        await self.session.refresh(obj)
+        self.session.expunge(obj)
+
         return obj
+
+    async def add(self, obj):
+        self.session.add(obj)
+        await self.session.commit()

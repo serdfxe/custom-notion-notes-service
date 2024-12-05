@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Header
+from app.services.workspace import WorkspaceService, get_workspace_service
 from core.fastapi.dependencies import get_repository
 from typing import Annotated
 from api.block.dto import BlockResponseDTO
@@ -10,12 +11,6 @@ from uuid import UUID, uuid4
 workspace_router = APIRouter(prefix="/workspace", tags=["workspace"])
 
 
-BlockRepository = Annotated[
-    DatabaseRepository[Block],
-    Depends(get_repository(Block)),
-]
-
-
 @workspace_router.get(
     "/",
     response_model=BlockResponseDTO,
@@ -25,31 +20,13 @@ BlockRepository = Annotated[
     },
 )
 async def get_workspace_route(
-    x_user_id: Annotated[UUID, Header()], block_repo: BlockRepository
+    x_user_id: Annotated[UUID, Header()],
+    workspace_service: Annotated[WorkspaceService, Depends(get_workspace_service())],
 ):
     """
     Get workspace block by user_id in X-User-Id header. The operation returns workspace block data that associated with provided user_id. Or creates and returns workspace data if it has not yet been created.
     """
 
-    workspace = await block_repo.get(
-        Block.user_id == x_user_id, Block.type == "workspace"
-    )
+    workspace = await workspace_service.get(x_user_id)
 
-    if workspace:
-
-        return BlockResponseDTO.model_validate(workspace)
-
-    id = uuid4()
-
-    new_block = {
-        "id": id,
-        "type": "workspace",
-        "properties": {},
-        "content": [],
-        "parent": id,
-        "user_id": x_user_id,
-    }
-
-    block = await block_repo.create(**new_block)
-
-    return block
+    return workspace
