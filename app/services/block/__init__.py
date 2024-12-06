@@ -98,7 +98,7 @@ class BlockService(Service):
 
                 await self.repo.update(parent.id, {"content": content})
 
-                await self._delete(Block.user_id, Block.id)
+                await self._delete(user_id, id)
 
                 uow.commit()
         except Exception as e:
