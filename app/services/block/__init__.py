@@ -72,8 +72,19 @@ class BlockService(Service):
             parent=data.parent,
             user_id=data.user_id,
         )
+    
+    async def _delete(self, user_id: UUID, id: UUID):
+        block = await self.get(user_id, id)
 
-    async def delete(self, user_id: UUID, id: UUID) -> Block:
+        if block is None:
+            return
+
+        for child in block.content:
+            await self._delete(user_id, UUID(child))
+
+        await self.repo.delete(Block.id == id, Block.user_id == user_id)
+
+    async def delete(self, user_id: UUID, id: UUID):
         try:
             async with self.uow as uow:
                 block = await self.get(user_id, id)
@@ -87,7 +98,9 @@ class BlockService(Service):
 
                 await self.repo.update(parent.id, {"content": content})
 
-                await self.repo.delete(Block.id == id, Block.user_id == user_id)
+                await self._delete(Block.user_id, Block.id)
+
+                uow.commit()
         except Exception as e:
             raise e
 
